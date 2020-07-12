@@ -2,13 +2,15 @@
 skinparam backgroundColor transparent
 
 rectangle "VPN" as vpn {
+    !include balancer.puml
     !include front.puml
     !include back.puml
     !include db.puml
     !include store.puml
 }
 
-f <--> b : 172.x
-f <--> db : 172.x
-f <--> s : 172.x
+bl <--> f : 172.x/16
+bl <--> b : 172.x/16
+bl <--> db : 172.x/16
+bl <--> s : 172.x/16
 @enduml

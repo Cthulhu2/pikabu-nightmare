@@ -1,0 +1,150 @@
+version: '3'
+
+services:
+
+  consul:
+    image: consul:1.8.0
+    container_name: consul
+    environment:
+      # To enable binding default DNS port
+      - CONSUL_ALLOW_PRIVILEGED_PORTS=
+    command: agent -bind 0.0.0.0 -client 0.0.0.0 -ui -node=consul-master
+    #ports:
+      # No publish ports, just internal exposed in VPN
+    volumes:
+      - consul-data:/consul/data
+      - ./consul/config/config.json:/consul/config/config.json:ro
+    networks:
+      vpn:
+        ipv4_address: ${CONSUL_IP:-172.25.0.2}
+    labels:
+      # registrator labels
+      SERVICE_IGNORE: 'yes'
+
+  nginx:
+    build:
+      context: ./nginx
+    container_name: nginx
+    depends_on:
+      - consul
+    volumes:
+      - ./nginx/nginx.ctmpl:/etc/consul-templates/nginx.ctmpl
+    ports:
+      - 80:80
+      - 443:443
+    dns:
+      - ${CONSUL_IP}
+    networks:
+      - vpn
+    labels:
+      # registrator labels
+      SERVICE_80_ID: 'p80'
+      SERVICE_80_NAME: 'nginx-http'
+      SERVICE_80_CHECK_HTTP: /nginx_status
+      SERVICE_80_CHECK_INTERVAL: 15s
+      SERVICE_80_CHECK_TIMEOUT: 1s
+      SERVICE_80_CHECK_HTTP_METHOD: HEAD
+      SERVICE_443_ID: 'p443'
+      SERVICE_443_NAME: 'nginx-https'
+      # Https health check registration with Consul is not working
+      # https://github.com/gliderlabs/registrator/issues/516
+      SERVICE_443_CHECK_TCP: true
+      SERVICE_443_CHECK_INTERVAL: 15s
+      SERVICE_443_CHECK_TIMEOUT: 3s
+
+  registrator:
+    image: gliderlabs/registrator:latest
+    container_name: registrator
+    depends_on:
+      - consul
+    command: "\
+      -cleanup \
+      -retry-attempts -1 \
+      -retry-interval 5000 \
+      -internal=true \
+      consul://consul:8500
+    "
+    dns:
+      - ${CONSUL_IP}
+    networks:
+      - vpn
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock
+
+  front-01:
+    image: nginx:1.19.0-alpine
+    container_name: front-01
+    depends_on:
+      - consul
+    dns:
+      - ${CONSUL_IP}
+    networks:
+      - vpn
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+    labels:
+      SERVICE_80_ID: 'front1'
+      SERVICE_80_NAME: 'front'
+      SERVICE_80_CHECK_TCP: true
+      SERVICE_80_CHECK_INTERVAL: 15s
+      SERVICE_80_CHECK_TIMEOUT: 3s
+
+  front-02:
+    image: nginx:1.19.0-alpine
+    container_name: front-02
+    depends_on:
+      - consul
+    dns:
+      - ${CONSUL_IP}
+    networks:
+      - vpn
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+    labels:
+      SERVICE_80_ID: 'front2'
+      SERVICE_80_NAME: 'front'
+      SERVICE_80_CHECK_TCP: true
+      SERVICE_80_CHECK_INTERVAL: 15s
+      SERVICE_80_CHECK_TIMEOUT: 3s
+
+  back-01:
+    image: nginx:1.19.0-alpine
+    container_name: back-01
+    depends_on:
+      - consul
+    dns:
+      - ${CONSUL_IP}
+    networks:
+      - vpn
+    labels:
+      SERVICE_80_ID: 'back1'
+      SERVICE_80_NAME: 'back'
+      SERVICE_80_CHECK_TCP: true
+      SERVICE_80_CHECK_INTERVAL: 15s
+      SERVICE_80_CHECK_TIMEOUT: 3s
+
+  back-02:
+    image: nginx:1.19.0-alpine
+    container_name: back-02
+    depends_on:
+      - consul
+    dns:
+      - ${CONSUL_IP}
+    networks:
+      - vpn
+    labels:
+      SERVICE_80_ID: 'back2'
+      SERVICE_80_NAME: 'back'
+      SERVICE_80_CHECK_TCP: true
+      SERVICE_80_CHECK_INTERVAL: 15s
+      SERVICE_80_CHECK_TIMEOUT: 3s
+
+networks:
+  vpn:
+    ipam:
+      driver: default
+      config:
+        - subnet: ${VPN_MASK:-172.25.0.0/16}
+
+volumes:
+  consul-data:

@@ -2,10 +2,9 @@
 skinparam backgroundColor transparent
 
 rectangle "Front" as f {
-    component "Nginx" as n
-    component "Consul" as c
+    component "Nginx 0" as n0
+    component "Nginx N" as nN
 }
 
-n <-right-> c
-
+n0 . nN
 @enduml

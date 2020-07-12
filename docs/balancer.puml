@@ -1,0 +1,10 @@
+@startuml
+skinparam backgroundColor transparent
+
+rectangle "Balancer" as bl {
+    component "Nginx" as n
+    component "Consul" as c
+}
+
+n <-> c
+@enduml

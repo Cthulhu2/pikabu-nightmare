@@ -1,0 +1,66 @@
+version: '3'
+
+services:
+
+  prometheus:
+    image: prom/prometheus:v2.19.2
+    container_name: prometheus
+    command:
+        - '--config.file=/etc/prometheus/prometheus.yml'
+    volumes:
+        - ./prometheus/:/etc/prometheus/
+        - prometheus-data:/prometheus
+    dns:
+      - ${CONSUL_IP}
+    networks:
+      - vpn
+    labels:
+      # registrator labels
+      SERVICE_ID: 'p1'
+      SERVICE_NAME: 'prometheus'
+      SERVICE_9090_CHECK_TCP: /metrics
+      SERVICE_9090_CHECK_INTERVAL: 15s
+      SERVICE_9090_CHECK_TIMEOUT: 3s
+
+  consul-exporter:
+    image: prom/consul-exporter:v0.7.0
+    container_name: consul-exporter
+    command: '--consul.server=${CONSUL_IP}:8500'
+    dns:
+      - ${CONSUL_IP}
+    networks:
+      - vpn
+    labels:
+      # registrator labels
+      SERVICE_ID: 'ce1'
+      SERVICE_NAME: 'consul-exporter'
+      SERVICE_9107_CHECK_TCP: true
+      SERVICE_9107_CHECK_INTERVAL: 15s
+      SERVICE_9107_CHECK_TIMEOUT: 3s
+
+  grafana:
+    image: grafana/grafana:7.0.6
+    container_name: grafana
+    depends_on:
+      - prometheus
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning/:/etc/grafana/provisioning/
+    networks:
+      - vpn
+    dns:
+      - ${CONSUL_IP}
+    labels:
+      # registrator labels
+      SERVICE_ID: 'g1'
+      SERVICE_NAME: 'grafana'
+      SERVICE_3000_CHECK_TCP: true
+      SERVICE_3000_CHECK_INTERVAL: 15s
+      SERVICE_3000_CHECK_TIMEOUT: 3s
+
+networks:
+  vpn:
+
+volumes:
+  prometheus-data:
+  grafana-data:

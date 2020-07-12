@@ -3,8 +3,11 @@ skinparam backgroundColor transparent
 left to right direction
 
 :User: as u
+() http
 
 !include vpn.puml
-u <--> n : INTERNET
+
+u <-> http : INTERNET
+http -- n
 
 @enduml

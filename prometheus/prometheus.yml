@@ -19,3 +19,13 @@ scrape_configs:
     static_configs:
       - targets:
         - consul-exporter:9107
+
+  - job_name: 'services-nginx'
+    metrics_path: '/nginx_status/format/prometheus'
+    consul_sd_configs:
+      - server: 'consul.service.dc1.pn.local:8500'
+        services: ['nginx']
+    relabel_configs:
+      - source_labels: ['__meta_consul_service_id', '__meta_consul_service']
+        separator: .
+        target_label: 'instance'

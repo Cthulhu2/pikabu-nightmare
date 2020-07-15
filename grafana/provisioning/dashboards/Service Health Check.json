@@ -15,7 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "iteration": 1594518365104,
+  "id": 4,
+  "iteration": 1594773264480,
   "links": [],
   "panels": [
     {
@@ -212,7 +213,7 @@
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
-            "mean"
+            "last"
           ],
           "fields": "",
           "values": false
@@ -293,6 +294,6 @@
   },
   "timezone": "",
   "title": "Service Health Checks",
-  "uid": "DaXP9m7Gz",
+  "uid": "4HkzLd7Mz",
   "version": 1
 }

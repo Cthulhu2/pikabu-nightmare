@@ -28,7 +28,8 @@ services:
     depends_on:
       - consul
     volumes:
-      - ./nginx/nginx.ctmpl:/etc/consul-templates/nginx.ctmpl
+      - ./nginx/app.conf.ctmpl:/etc/consul-templates/app.conf.ctmpl
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
     ports:
       - 80:80
       - 443:443
@@ -39,13 +40,15 @@ services:
     labels:
       # registrator labels
       SERVICE_80_ID: 'p80'
-      SERVICE_80_NAME: 'nginx-http'
+      SERVICE_80_NAME: 'nginx'
+      SERVICE_80_TAGS: 'http'
       SERVICE_80_CHECK_HTTP: /nginx_status
       SERVICE_80_CHECK_INTERVAL: 15s
       SERVICE_80_CHECK_TIMEOUT: 1s
       SERVICE_80_CHECK_HTTP_METHOD: HEAD
       SERVICE_443_ID: 'p443'
-      SERVICE_443_NAME: 'nginx-https'
+      SERVICE_443_NAME: 'nginx'
+      SERVICE_443_TAGS: 'https'
       # Https health check registration with Consul is not working
       # https://github.com/gliderlabs/registrator/issues/516
       SERVICE_443_CHECK_TCP: true
@@ -85,6 +88,7 @@ services:
     labels:
       SERVICE_80_ID: 'front1'
       SERVICE_80_NAME: 'front'
+      SERVICE_80_TAGS: 'f1'
       SERVICE_80_CHECK_TCP: true
       SERVICE_80_CHECK_INTERVAL: 15s
       SERVICE_80_CHECK_TIMEOUT: 3s
@@ -103,6 +107,7 @@ services:
     labels:
       SERVICE_80_ID: 'front2'
       SERVICE_80_NAME: 'front'
+      SERVICE_80_TAGS: 'f2'
       SERVICE_80_CHECK_TCP: true
       SERVICE_80_CHECK_INTERVAL: 15s
       SERVICE_80_CHECK_TIMEOUT: 3s
@@ -119,6 +124,7 @@ services:
     labels:
       SERVICE_80_ID: 'back1'
       SERVICE_80_NAME: 'back'
+      SERVICE_80_TAGS: 'b1'
       SERVICE_80_CHECK_TCP: true
       SERVICE_80_CHECK_INTERVAL: 15s
       SERVICE_80_CHECK_TIMEOUT: 3s
@@ -135,6 +141,7 @@ services:
     labels:
       SERVICE_80_ID: 'back2'
       SERVICE_80_NAME: 'back'
+      SERVICE_80_TAGS: 'b2'
       SERVICE_80_CHECK_TCP: true
       SERVICE_80_CHECK_INTERVAL: 15s
       SERVICE_80_CHECK_TIMEOUT: 3s

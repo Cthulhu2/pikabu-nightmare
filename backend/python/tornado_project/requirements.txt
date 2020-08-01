@@ -1,0 +1,7 @@
+momoko
+tornado <6.0, >=4.0  # momoko 2.2.5.1 has requirement tornado<6.0,>=4.0
+gino
+mimesis
+
+swagger-py-codegen
+Werkzeug

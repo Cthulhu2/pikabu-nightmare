@@ -6,6 +6,16 @@
 
 Visit [WillBooster/plantuml-visualizer](https://github.com/WillBooster/plantuml-visualizer)
 
+## Build
+
+### Frontend
+
+[vue-pikabu-nightmare](frontend/vue-pikabu-nightmare/README.md)
+
+### Backend
+
+[tornado_project](backend/python/tornado_project/README.md)
+
 ## Docker 
 
 To build and launch containers in docker network in project dir run: 
@@ -33,9 +43,16 @@ $ dig @172.25.0.2 nginx-http.service.dc1.pn.local ANY
 nginx-http.service.dc1.pn.local. 0 IN	A	172.25.0.3
 ```
 
+Metrics with Prometheus and Grafana:  
+```
+docker-compose -f ./docker-compose-meter.yml up -d
+```
+
 Visit:
 * [Install Docker Engine](https://docs.docker.com/engine/install/)
 * [Install Docker Compose](https://docs.docker.com/compose/install/)
 * [Compose file version 3 reference](https://docs.docker.com/compose/compose-file/)
 * https://www.portainer.io/
 * [Consul DNS Interface](https://www.consul.io/docs/agent/dns.html)
+* [Prometheus](https://github.com/prometheus/prometheus)
+* [Grafana](https://github.com/grafana/grafana)
